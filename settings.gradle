@@ -1,0 +1,22 @@
+rootProject.name = 'furnicraft-platform'
+
+// Infrastructure modules
+include 'infrastructure:eureka-server'
+include 'infrastructure:config-server'
+include 'infrastructure:api-gateway'
+
+// Shared modules
+include 'shared:common'
+include 'shared:security'
+include 'shared:events'
+
+// Service modules
+include 'services:auth-service'
+include 'services:user-service'
+include 'services:product-service'
+include 'services:inventory-service'
+include 'services:cart-service'
+include 'services:order-service'
+include 'services:payment-service'
+include 'services:notification-service'
+include 'services:media-service'
