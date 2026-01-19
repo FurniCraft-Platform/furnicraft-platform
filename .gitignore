@@ -28,8 +28,6 @@ build/
 .env.local
 .env.*.local
 *.properties
-!src/main/resources/application.properties
-!src/main/resources/application.yml
 
 ### Docker ###
 .docker/
