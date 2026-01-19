@@ -27,7 +27,6 @@ build/
 .env
 .env.local
 .env.*.local
-*.properties
 
 ### Docker ###
 .docker/
