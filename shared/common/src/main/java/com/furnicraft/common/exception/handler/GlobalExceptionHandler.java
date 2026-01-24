@@ -44,9 +44,7 @@ public class GlobalExceptionHandler {
         Map<String, String> validationErrors = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors()
-                .forEach(error -> {
-                    validationErrors.put(error.getField(), error.getDefaultMessage());
-                });
+                .forEach(error -> validationErrors.put(error.getField(), error.getDefaultMessage()));
 
         ErrorCode code = ErrorCode.VALIDATION_FAILED;
 
