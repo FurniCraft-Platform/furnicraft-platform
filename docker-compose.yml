@@ -13,6 +13,20 @@ services:
     networks:
       - furnicraft_network
 
+  redis:
+    image: redis:8.4.0-alpine
+    container_name: furnicraft-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - furnicraft_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
 networks:
   furnicraft_network:
     driver: bridge

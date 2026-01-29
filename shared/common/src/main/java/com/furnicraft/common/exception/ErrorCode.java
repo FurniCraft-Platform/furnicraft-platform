@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
 
+    USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists with email"),
+
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid credentials"),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token expired"),
 
