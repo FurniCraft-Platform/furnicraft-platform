@@ -2,6 +2,7 @@ package com.furnicraft.auth.service;
 
 import com.furnicraft.auth.dto.AuthenticationResponse;
 import com.furnicraft.auth.dto.LoginRequest;
+import com.furnicraft.auth.dto.RefreshTokenRequest;
 import com.furnicraft.auth.dto.RegisterRequest;
 import com.furnicraft.auth.entity.User;
 import com.furnicraft.auth.entity.enums.Role;
@@ -47,9 +48,11 @@ public class AuthenticationService {
         userRepository.save(user);
 
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -65,9 +68,11 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -81,8 +86,30 @@ public class AuthenticationService {
         Date expirationDate = jwtService.extractExpiration(jwt);
         long diff = expirationDate.getTime() - System.currentTimeMillis();
 
-        if (diff > 0){
+        if (diff > 0) {
             redisTemplate.opsForValue().set(jwt, "blacklisted", Duration.ofMillis(diff));
         }
+    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        String userEmail = jwtService.extractUsername(refreshToken);
+
+        if (userEmail != null) {
+            var user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND));
+
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+
+                return AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+            }
+        }
+
+        throw new BaseException("Refresh token is invalid or expired", ErrorCode.TOKEN_EXPIRED);
     }
 }

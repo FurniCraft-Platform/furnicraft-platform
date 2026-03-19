@@ -2,8 +2,10 @@ package com.furnicraft.auth.controller;
 
 import com.furnicraft.auth.dto.AuthenticationResponse;
 import com.furnicraft.auth.dto.LoginRequest;
+import com.furnicraft.auth.dto.RefreshTokenRequest;
 import com.furnicraft.auth.dto.RegisterRequest;
 import com.furnicraft.auth.service.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +23,18 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+    public AuthenticationResponse register(@Valid @RequestBody RegisterRequest request) {
+        return authenticationService.register(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authenticationService.login(request));
+    public AuthenticationResponse login(@Valid @RequestBody LoginRequest request) {
+        return authenticationService.login(request);
+    }
+
+    @PostMapping("/refresh-token")
+    public AuthenticationResponse refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return authenticationService.refreshToken(request);
     }
 
     @PostMapping("/logout")
