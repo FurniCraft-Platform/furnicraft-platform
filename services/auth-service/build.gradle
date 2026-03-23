@@ -4,9 +4,10 @@ plugins {
 
 dependencies {
     implementation project(':shared:common')
+    implementation project(':services:user-service')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
@@ -17,6 +18,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.liquibase:liquibase-core'

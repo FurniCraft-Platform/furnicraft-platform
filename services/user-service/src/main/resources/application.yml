@@ -1,12 +1,12 @@
 server:
-  port: 8081
+  port: 8083
 
 spring:
   application:
-    name: auth-service
+    name: user-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/furnicraft_auth
+    url: jdbc:postgresql://localhost:5434/furnicraft_user
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -24,28 +24,16 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master-auth.yml
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
+    change-log: classpath:db/changelog/db.changelog-master-user.yml
 
 application:
-  security:
-    jwt:
-      secret-key: ${JWT_SECRET_KEY}
-      expiration: ${JWT_EXPIRATION}
-      refresh-token:
-        expiration: ${JWT_REFRESH_EXPIRATION}
-
   clients:
-    user-service:
-      url: http://localhost:8083
+    auth-service:
+      url: http://localhost:8081
 
 eureka:
   instance:

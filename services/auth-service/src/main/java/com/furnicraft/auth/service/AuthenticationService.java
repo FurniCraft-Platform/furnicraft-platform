@@ -1,5 +1,6 @@
 package com.furnicraft.auth.service;
 
+import com.furnicraft.auth.client.UserServiceClient;
 import com.furnicraft.auth.dto.AuthenticationResponse;
 import com.furnicraft.auth.dto.LoginRequest;
 import com.furnicraft.auth.dto.RefreshTokenRequest;
@@ -10,6 +11,8 @@ import com.furnicraft.auth.entity.enums.Status;
 import com.furnicraft.auth.repository.UserRepository;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
+import com.furnicraft.user.dto.UserCreateRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +33,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserServiceClient userServiceClient;
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException("This email is already taken!", ErrorCode.USER_ALREADY_EXISTS);
@@ -46,6 +51,13 @@ public class AuthenticationService {
                 .build();
 
         userRepository.save(user);
+
+        userServiceClient.createUserProfile(UserCreateRequest.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build());
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
