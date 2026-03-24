@@ -1,7 +1,9 @@
 package com.furnicraft.auth.service;
 
+import com.furnicraft.auth.client.UserServiceClient;
 import com.furnicraft.auth.dto.AuthenticationResponse;
 import com.furnicraft.auth.dto.LoginRequest;
+import com.furnicraft.auth.dto.RefreshTokenRequest;
 import com.furnicraft.auth.dto.RegisterRequest;
 import com.furnicraft.auth.entity.User;
 import com.furnicraft.auth.entity.enums.Role;
@@ -9,6 +11,8 @@ import com.furnicraft.auth.entity.enums.Status;
 import com.furnicraft.auth.repository.UserRepository;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
+import com.furnicraft.user.dto.UserCreateRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +33,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserServiceClient userServiceClient;
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException("This email is already taken!", ErrorCode.USER_ALREADY_EXISTS);
@@ -46,10 +52,19 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
+        userServiceClient.createUserProfile(UserCreateRequest.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build());
+
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -65,9 +80,11 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -81,8 +98,30 @@ public class AuthenticationService {
         Date expirationDate = jwtService.extractExpiration(jwt);
         long diff = expirationDate.getTime() - System.currentTimeMillis();
 
-        if (diff > 0){
+        if (diff > 0) {
             redisTemplate.opsForValue().set(jwt, "blacklisted", Duration.ofMillis(diff));
         }
+    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        String userEmail = jwtService.extractUsername(refreshToken);
+
+        if (userEmail != null) {
+            var user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND));
+
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+
+                return AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+            }
+        }
+
+        throw new BaseException("Refresh token is invalid or expired", ErrorCode.TOKEN_EXPIRED);
     }
 }
