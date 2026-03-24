@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04-update-products
+      author: javid.rzayev
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: is_deleted
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - update:
+            tableName: products
+            columns:
+              - column:
+                  name: status
+                  value: DRAFT
+            where: "status = 'ACTIVE'"

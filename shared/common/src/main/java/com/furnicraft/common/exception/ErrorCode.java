@@ -15,7 +15,13 @@ public enum ErrorCode {
 
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
 
-    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
+
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "Category not found"),
+
+    CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "Category already exists with this name"),
+
+    PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Product already exists with this name");
 
     private final HttpStatus status;
     private final String defaultMessage;

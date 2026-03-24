@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 05-update-products
+      author: javid.rzayev
+      changes:
+        - addNotNullConstraint:
+            tableName: products
+            columnName: category_id
+            columnDataType: UUID

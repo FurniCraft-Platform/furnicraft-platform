@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03-add-soft-delete-to-categories
+      author: javid.rzayev
+      changes:
+        - addColumn:
+            tableName: categories
+            columns:
+              - column:
+                  name: is_deleted
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
