@@ -1,5 +1,6 @@
 package com.furnicraft.product.controller;
 
+import com.furnicraft.product.client.dto.MediaResponse;
 import com.furnicraft.product.dto.product.ProductRequestDto;
 import com.furnicraft.product.dto.product.ProductResponseDto;
 import com.furnicraft.product.service.ProductService;
@@ -10,9 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,5 +56,19 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/{productId}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MediaResponse> uploadProductMedia(
+            @PathVariable UUID productId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "isPrimary", required = false, defaultValue = "false") Boolean isPrimary
+    ) {
+        return ResponseEntity.ok(productService.uploadProductMedia(productId, file, isPrimary));
+    }
+
+    @GetMapping("/{productId}/media")
+    public ResponseEntity<List<MediaResponse>> getProductMedia(@PathVariable UUID productId) {
+        return ResponseEntity.ok(productService.getProductMedia(productId));
     }
 }

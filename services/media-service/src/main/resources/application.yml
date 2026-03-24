@@ -1,0 +1,46 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: media-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/furnicraft_media
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master-media.yml
+    enabled: true
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+minio:
+  url: http://localhost:${MINIO_API_PORT}
+  access-key: ${MINIO_ROOT_USER}
+  secret-key: ${MINIO_ROOT_PASSWORD}
+  bucket: furnicraft-media

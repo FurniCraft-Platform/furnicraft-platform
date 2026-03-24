@@ -29,9 +29,26 @@ services:
       retries: 5
     restart: always
 
+  minio:
+    image: minio/minio:latest
+    container_name: furnicraft-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_API_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - furnicraft_network
+    restart: always
+
 networks:
   furnicraft_network:
     driver: bridge
 
 volumes:
   postgres_data:
+  minio_data:

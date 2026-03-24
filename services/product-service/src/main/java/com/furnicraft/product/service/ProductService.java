@@ -2,6 +2,8 @@ package com.furnicraft.product.service;
 
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
+import com.furnicraft.product.client.MediaClient;
+import com.furnicraft.product.client.dto.MediaResponse;
 import com.furnicraft.product.dto.product.ProductRequestDto;
 import com.furnicraft.product.dto.product.ProductResponseDto;
 import com.furnicraft.product.entity.Category;
@@ -14,7 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +28,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryService categoryService;
+    private final MediaClient mediaClient;
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto request) {
@@ -81,5 +86,17 @@ public class ProductService {
         return productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BaseException("Product not found with id: " + id,
                         ErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    @Transactional
+    public MediaResponse uploadProductMedia(UUID productId, MultipartFile file, Boolean isPrimary) {
+        findProductEntityById(productId);
+        return mediaClient.uploadProductMedia(productId, file, isPrimary);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MediaResponse> getProductMedia(UUID productId) {
+        findProductEntityById(productId);
+        return mediaClient.getProductMedia("PRODUCT", productId);
     }
 }

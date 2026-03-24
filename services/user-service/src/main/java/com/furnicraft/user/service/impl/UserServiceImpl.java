@@ -3,6 +3,8 @@ package com.furnicraft.user.service.impl;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.user.client.AuthServiceClient;
+import com.furnicraft.user.client.MediaClient;
+import com.furnicraft.user.client.dto.MediaResponse;
 import com.furnicraft.user.dto.UserCreateRequest;
 import com.furnicraft.user.dto.UserResponse;
 import com.furnicraft.user.entity.User;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AuthServiceClient authServiceClient;
     private final UserMapper userMapper;
+    private final MediaClient mediaClient;
 
     @Override
     @Transactional
@@ -76,15 +80,23 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             throw new BaseException("File cannot be empty", ErrorCode.VALIDATION_FAILED);
         }
 
-        // Burada real bir MediaService çağırıb şəkili serverə yüklənəcək.
-        // Hələlik nümunə üçün bir link təyin edirik:
-        String fakeUrl = "https://unsplash.com/photos/a-cartoon-character-with-a-blue-hat-on-his-head-0piYmLeSgTQ" + userId + ".jpg";
+        MediaResponse uploadedMedia = mediaClient.uploadUserProfileImage(userId, file);
 
-        user.setAvatarUrl(fakeUrl);
+        user.setAvatarUrl(uploadedMedia.getObjectKey());
+
         return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public List<MediaResponse> getUserMedia(UUID userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND));
+
+        return mediaClient.getUserMedia("USER", userId);
     }
 }

@@ -1,5 +1,6 @@
 package com.furnicraft.user.controller;
 
+import com.furnicraft.user.client.dto.MediaResponse;
 import com.furnicraft.user.dto.AddressRequest;
 import com.furnicraft.user.dto.AddressResponse;
 import com.furnicraft.user.dto.UserCreateRequest;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +53,11 @@ public class UserController {
     @PostMapping("/{userId}/avatar")
     public UserResponse uploadAvatar(@PathVariable UUID userId, @RequestParam("file") MultipartFile file) {
         return userService.uploadAvatar(userId, file);
+    }
+
+    @GetMapping("/{userId}/media")
+    public ResponseEntity<List<MediaResponse>> getUserMedia(@PathVariable UUID userId) {
+        return ResponseEntity.ok(userService.getUserMedia(userId));
     }
 
     @PostMapping("/{userId}/addresses")

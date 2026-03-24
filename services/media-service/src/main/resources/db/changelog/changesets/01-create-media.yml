@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-create-media-table
+      author: ali.huseynov
+      changes:
+        - createTable:
+            tableName: media
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: owner_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: owner_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: content_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: original_file_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: object_key
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+                    unique: true
+
+              - column:
+                  name: bucket
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: is_primary
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+
+        - createIndex:
+            tableName: media
+            indexName: idx_media_owner_type_owner_id
+            columns:
+              - column:
+                  name: owner_type
+              - column:
+                  name: owner_id
