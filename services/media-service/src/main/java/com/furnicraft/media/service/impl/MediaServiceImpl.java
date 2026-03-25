@@ -9,6 +9,8 @@ import com.furnicraft.media.entity.enums.MediaOwnerType;
 import com.furnicraft.media.repository.MediaRepository;
 import com.furnicraft.media.service.MediaService;
 import com.furnicraft.media.service.StorageService;
+import com.furnicraft.product.repository.ProductRepository;
+import com.furnicraft.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,8 @@ public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;
     private final StorageService storageService;
-    // TODO: hazır olan repository-ləri inject et
-    // private final ProductRepository productRepository;
-    // private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Media uploadProductMedia(UUID productId, MultipartFile file, boolean isPrimary) {
@@ -146,16 +147,14 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private void validateProductExists(UUID productId) {
-        // TODO: ProductRepository hazır olanda bunu aktiv et
-        // if (!productRepository.existsById(productId)) {
-        //     throw new BaseException(ErrorCode.RESOURCE_NOT_FOUND, "Product not found");
-        // }
+        if (!productRepository.existsById(productId)) {
+            throw new BaseException("Product not found", ErrorCode.RESOURCE_NOT_FOUND);
+        }
     }
 
     private void validateUserExists(UUID userId) {
-        // TODO: UserRepository hazır olanda bunu aktiv et
-        // if (!userRepository.existsById(userId)) {
-        //     throw new BaseException(ErrorCode.RESOURCE_NOT_FOUND, "User not found");
-        // }
+        if (!userRepository.existsById(userId)) {
+            throw new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND);
+        }
     }
 }

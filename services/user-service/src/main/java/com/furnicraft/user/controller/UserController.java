@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/addresses")
-    public List<AddressResponse> addAddresses(@PathVariable UUID userId) {
+    public List<AddressResponse> getUserAddresses(@PathVariable UUID userId) {
         return addressService.getUserAddresses(userId);
     }
 
