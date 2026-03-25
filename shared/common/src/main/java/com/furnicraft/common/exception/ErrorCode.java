@@ -9,6 +9,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User already exists with email"),
 
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid credentials"),
+
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token expired"),
 
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
@@ -21,7 +22,13 @@ public enum ErrorCode {
 
     CATEGORY_ALREADY_EXISTS(HttpStatus.CONFLICT, "Category already exists with this name"),
 
-    PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Product already exists with this name");
+    PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Product already exists with this name"),
+
+    INSUFFICIENT_STOCK(HttpStatus.CONFLICT, "Insufficient stock"),
+
+    ORDER_CANNOT_BE_CANCELLED(HttpStatus.CONFLICT, "Order cannot be cancelled"),
+
+    INVALID_STATUS_TRANSITION(HttpStatus.CONFLICT, "Invalid status transition");
 
     private final HttpStatus status;
     private final String defaultMessage;

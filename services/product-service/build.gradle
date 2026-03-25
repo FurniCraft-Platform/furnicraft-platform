@@ -15,6 +15,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
 
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
     implementation 'org.liquibase:liquibase-core'
 
     runtimeOnly 'org.postgresql:postgresql'

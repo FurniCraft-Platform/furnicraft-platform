@@ -58,6 +58,20 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{productId}/stock/reduce")
+    public ResponseEntity<ProductResponseDto> reduceStock(
+            @PathVariable UUID productId,
+            @RequestParam Integer quantity) {
+        return ResponseEntity.ok(productService.reduceStock(productId, quantity));
+    }
+
+    @PatchMapping("/{productId}/stock/restore")
+    public ResponseEntity<ProductResponseDto> restoreStock(
+            @PathVariable UUID productId,
+            @RequestParam Integer quantity) {
+        return ResponseEntity.ok(productService.restoreStock(productId, quantity));
+    }
+
     @PostMapping(value = "/{productId}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaResponse> uploadProductMedia(
             @PathVariable UUID productId,
@@ -71,4 +85,6 @@ public class ProductController {
     public ResponseEntity<List<MediaResponse>> getProductMedia(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getProductMedia(productId));
     }
+
+
 }

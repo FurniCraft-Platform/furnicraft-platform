@@ -42,7 +42,7 @@ public class ProductService {
         Product product = productMapper.toEntity(request);
         product.setCategory(category);
         product.setStatus(ProductStatus.DRAFT);
-        product.setStock(request.getStock() != null ? request.getStock() : 0);
+        product.setStock(request.getStock());
 
         return productMapper.toDto(productRepository.save(product));
     }
@@ -98,5 +98,25 @@ public class ProductService {
     public List<MediaResponse> getProductMedia(UUID productId) {
         findProductEntityById(productId);
         return mediaClient.getProductMedia("PRODUCT", productId);
+    }
+
+    @Transactional
+    public ProductResponseDto reduceStock(UUID id, Integer quantity) {
+        Product product = findProductEntityById(id);
+
+        if (product.getStock() < quantity) {
+            throw new BaseException("Insufficient stock for product: " + id,
+                    ErrorCode.INSUFFICIENT_STOCK);
+        }
+
+        product.setStock(product.getStock() - quantity);
+        return productMapper.toDto(product);
+    }
+
+    @Transactional
+    public ProductResponseDto restoreStock(UUID id, Integer quantity) {
+        Product product = findProductEntityById(id);
+        product.setStock(product.getStock() + quantity);
+        return productMapper.toDto(product);
     }
 }
