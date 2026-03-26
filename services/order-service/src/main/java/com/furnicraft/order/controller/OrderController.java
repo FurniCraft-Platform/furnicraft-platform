@@ -44,14 +44,14 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getUserOrders(userId, pageable));
     }
 
-    @PutMapping("/{orderId}/cancel")
+    @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<OrderResponseDto> cancelOrder(
             @PathVariable UUID orderId,
             @RequestParam UUID userId) {
         return ResponseEntity.ok(orderService.cancelOrder(orderId, userId));
     }
 
-    @PutMapping("/{orderId}/status")
+    @PatchMapping("/{orderId}/status")
     public ResponseEntity<OrderResponseDto> updateStatus(
             @PathVariable UUID orderId,
             @RequestParam OrderStatus status) {

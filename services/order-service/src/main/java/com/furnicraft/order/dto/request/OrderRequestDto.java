@@ -17,7 +17,7 @@ public class OrderRequestDto {
     private UUID userId;
 
     @NotBlank(message = "Shipping address is required")
-    private String shippingAddress;
+    private UUID addressId;
 
     @Valid
     @NotEmpty(message = "Order must have at least 1 item")

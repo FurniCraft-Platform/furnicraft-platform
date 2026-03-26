@@ -3,6 +3,7 @@ package com.furnicraft.order.service;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.order.client.ProductClient;
+import com.furnicraft.order.client.UserClient;
 import com.furnicraft.order.client.response.ProductResponse;
 import com.furnicraft.order.dto.request.OrderRequestDto;
 import com.furnicraft.order.dto.response.OrderResponseDto;
@@ -27,23 +28,34 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final ProductClient productClient;
+    private final UserClient userClient;
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto request) {
 
+        var address = userClient.getAddressById(request.getUserId(), request.getAddressId());
+        String fullAddress = String.format("%s, %s, %s", address.getCountry(), address.getCity(), address.getStreet());
+
         Order order = Order.builder()
                 .userId(request.getUserId())
-                .shippingAddress(request.getShippingAddress())
+                .shippingAddress(fullAddress)
                 .status(OrderStatus.PENDING)
-                .totalPrice(BigDecimal.ZERO)
                 .build();
 
-        request.getItems().forEach(itemRequest -> {
+        BigDecimal totalPrice = BigDecimal.ZERO;
 
+        for (var itemRequest : request.getItems()) {
             ProductResponse product = productClient.getProductById(itemRequest.getProductId());
 
-            BigDecimal subtotal = product.getPrice()
-                    .multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+            if (product.getStock() < itemRequest.getQuantity()) {
+                throw new BaseException(
+                        "Insufficient stock for product: " + product.getName(),
+                        ErrorCode.INSUFFICIENT_STOCK
+                );
+            }
+
+            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+            totalPrice = totalPrice.add(subtotal);
 
             OrderItem orderItem = OrderItem.builder()
                     .productId(product.getId())
@@ -54,20 +66,11 @@ public class OrderService {
                     .build();
 
             order.addItem(orderItem);
-        });
-
-        BigDecimal totalPrice = order.getItems()
-                .stream()
-                .map(OrderItem::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            productClient.reduceStock(itemRequest.getProductId(), itemRequest.getQuantity());
+        }
 
         order.setTotalPrice(totalPrice);
-
         Order savedOrder = orderRepository.save(order);
-
-        request.getItems().forEach(itemRequest ->
-                productClient.reduceStock(itemRequest.getProductId(), itemRequest.getQuantity())
-        );
 
         return orderMapper.toDto(savedOrder);
     }
@@ -88,15 +91,18 @@ public class OrderService {
     public OrderResponseDto cancelOrder(UUID id, UUID userId) {
         Order order = findOrderEntityById(id);
 
-        if (!orderRepository.existsByIdAndUserId(id, userId)) {
-            throw new BaseException("Order does not belong to this user",
-                    ErrorCode.RESOURCE_NOT_FOUND);
+        if (!order.getUserId().equals(userId)) {
+            throw new BaseException(
+                    "Order does not belong to this user",
+                    ErrorCode.RESOURCE_NOT_FOUND
+            );
         }
 
-        if (order.getStatus() != OrderStatus.PENDING &&
-                order.getStatus() != OrderStatus.CONFIRMED) {
-            throw new BaseException("Order cannot be cancelled in status: " + order.getStatus(),
-                    ErrorCode.ORDER_CANNOT_BE_CANCELLED);
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new BaseException(
+                    "Order cannot be cancelled in status: " + order.getStatus(),
+                    ErrorCode.ORDER_CANNOT_BE_CANCELLED
+            );
         }
 
         order.getItems().forEach(item ->

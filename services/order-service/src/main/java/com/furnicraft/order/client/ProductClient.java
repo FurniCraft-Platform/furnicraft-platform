@@ -9,14 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
-@FeignClient(name = "ms-product", path = "/api/v1/products")
+@FeignClient(name = "product-service", path = "/api/v1/products")
 public interface ProductClient {
 
     @GetMapping("/{productId}")
     ProductResponse getProductById(@PathVariable UUID productId);
-
-    @PatchMapping("/{productId}/stock")
-    ProductResponse updateStock(@PathVariable UUID productId, @RequestParam Integer quantity);
 
     @PatchMapping("/{productId}/stock/restore")
     void restoreStock(@PathVariable UUID productId, @RequestParam Integer quantity);
