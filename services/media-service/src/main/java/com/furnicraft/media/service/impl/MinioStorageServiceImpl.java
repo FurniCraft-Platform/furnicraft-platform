@@ -39,7 +39,7 @@ public class MinioStorageServiceImpl implements StorageService {
                     .build();
 
         } catch (Exception e) {
-            throw new BaseException("Failed to upload file to MinIO", ErrorCode.INTERNAL_ERROR);
+            throw new BaseException("Failed to upload file to MinIO", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -53,7 +53,7 @@ public class MinioStorageServiceImpl implements StorageService {
                             .build()
             );
         } catch (Exception e){
-            throw new BaseException("Failed to remove file from MinIO", ErrorCode.INTERNAL_ERROR);
+            throw new BaseException("Failed to remove file from MinIO", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,7 +66,7 @@ public class MinioStorageServiceImpl implements StorageService {
                             .build()
             );
         } catch (Exception e) {
-            throw new BaseException("Failed to check if bucket existence", ErrorCode.INTERNAL_ERROR);
+            throw new BaseException("Failed to check if bucket existence", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,7 +83,7 @@ public class MinioStorageServiceImpl implements StorageService {
         } catch (BaseException e){
             throw e;
         } catch (Exception e) {
-            throw new BaseException("Failed to create bucket", ErrorCode.INTERNAL_ERROR);
+            throw new BaseException("Failed to create bucket", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

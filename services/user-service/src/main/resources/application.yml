@@ -35,6 +35,13 @@ application:
     auth-service:
       url: http://localhost:8081
 
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION}
+      refresh-token:
+        expiration: ${JWT_REFRESH_EXPIRATION}
+
 eureka:
   instance:
     prefer-ip-address: true

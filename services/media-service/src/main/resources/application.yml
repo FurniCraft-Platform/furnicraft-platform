@@ -39,6 +39,14 @@ spring:
       host: localhost
       port: 6379
 
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION}
+      refresh-token:
+        expiration: ${JWT_REFRESH_EXPIRATION}
+
 eureka:
   instance:
     prefer-ip-address: true

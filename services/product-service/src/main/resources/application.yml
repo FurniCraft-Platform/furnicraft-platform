@@ -31,6 +31,14 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yml
 
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION}
+      refresh-token:
+        expiration: ${JWT_REFRESH_EXPIRATION}
+
 eureka:
   instance:
     prefer-ip-address: true

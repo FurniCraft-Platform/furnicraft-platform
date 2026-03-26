@@ -7,7 +7,6 @@ include 'infrastructure:api-gateway'
 // Shared modules
 include 'shared:common'
 include 'shared:security'
-include 'shared:events'
 
 // Service modules
 include 'services:auth-service'
