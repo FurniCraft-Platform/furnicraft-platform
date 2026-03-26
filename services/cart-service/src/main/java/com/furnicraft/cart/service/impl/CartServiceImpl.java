@@ -36,7 +36,7 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public CartResponse getCartByUserId(UUID userId) {
         validateUser(userId);
 
@@ -61,8 +61,8 @@ public class CartServiceImpl implements CartService {
         if (cartItem != null) {
             int newQuantity = cartItem.getQuantity() + request.getQuantity();
 
-            if (newQuantity > cartItem.getQuantity()) {
-                throw new BaseException("Requested quantity exceeds available stock", ErrorCode.RESOURCE_NOT_FOUND);
+            if (product.getStock() == null || newQuantity > product.getStock()) {
+                throw new BaseException("Requested quantity exceeds available stock", ErrorCode.INSUFFICIENT_STOCK);
             }
 
             cartItem.setQuantity(newQuantity);
@@ -217,11 +217,11 @@ public class CartServiceImpl implements CartService {
         }
 
         if (product.getStock() == null || product.getStock() <= 0) {
-            throw new BaseException("Product is out of stock", ErrorCode.RESOURCE_NOT_FOUND);
+            throw new BaseException("Product is out of stock", ErrorCode.INSUFFICIENT_STOCK);
         }
 
         if (requestQuantity > product.getStock()) {
-            throw new BaseException("Requested quantity exceeds available stock", ErrorCode.RESOURCE_NOT_FOUND);
+            throw new BaseException("Requested quantity exceeds available stock", ErrorCode.INSUFFICIENT_STOCK);
         }
 
         if (product.getPrice() == null) {

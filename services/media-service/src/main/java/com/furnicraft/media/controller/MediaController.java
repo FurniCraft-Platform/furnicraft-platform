@@ -4,6 +4,7 @@ import com.furnicraft.media.entity.Media;
 import com.furnicraft.media.entity.enums.MediaOwnerType;
 import com.furnicraft.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ public class MediaController {
     private final MediaService mediaService;
 
     @PostMapping("/products/{productId}")
+    @PreAuthorize("hasAuthority('MEDIA_WRITE')")
     public Media uploadProductMedia(
             @PathVariable UUID productId,
             @RequestParam("file") MultipartFile file,
@@ -27,6 +29,7 @@ public class MediaController {
     }
 
     @PostMapping("/users/{userId}/profile-image")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public Media uploadProfileImage(
             @PathVariable UUID userId,
             @RequestParam("file") MultipartFile file
@@ -35,6 +38,7 @@ public class MediaController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Media> getMediaByOwner(
             @RequestParam MediaOwnerType ownerType,
             @RequestParam UUID ownerId
@@ -43,6 +47,7 @@ public class MediaController {
     }
 
     @DeleteMapping("/{mediaId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteMedia(@PathVariable UUID mediaId) {
         mediaService.deleteMedia(mediaId);
     }

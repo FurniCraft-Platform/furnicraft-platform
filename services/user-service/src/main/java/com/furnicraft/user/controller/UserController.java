@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,49 +36,67 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#id)")
     public UserResponse getUser(@PathVariable UUID id) {
         return userService.getUserById(id);
     }
 
     @GetMapping("/email")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserByEmail(@RequestParam("email") String email) {
         return userService.getUserByEmail(email);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return userService.getAllUsers(pageable);
     }
 
     @PostMapping("/{userId}/avatar")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public UserResponse uploadAvatar(@PathVariable UUID userId, @RequestParam("file") MultipartFile file) {
         return userService.uploadAvatar(userId, file);
     }
 
     @GetMapping("/{userId}/media")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public ResponseEntity<List<MediaResponse>> getUserMedia(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getUserMedia(userId));
     }
 
     @PostMapping("/{userId}/addresses")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public AddressResponse addAddress(@PathVariable UUID userId, @Valid @RequestBody AddressRequest request) {
         return addressService.addAddress(userId, request);
     }
 
     @GetMapping("/{userId}/addresses")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public List<AddressResponse> getUserAddresses(@PathVariable UUID userId) {
         return addressService.getUserAddresses(userId);
     }
 
+    @GetMapping("/{userId}/addresses/{addressId}")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    public AddressResponse getUserAddressById(
+            @PathVariable UUID userId,
+            @PathVariable UUID addressId
+    ) {
+        return addressService.getAddressByIdAndUserId(userId, addressId);
+    }
+
     @PatchMapping("/{userId}/addresses/{addressId}/default")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public void makeDefault(@PathVariable UUID userId, @PathVariable UUID addressId) {
         addressService.makeDefault(userId, addressId);
     }
 
     @DeleteMapping("/{userId}/addresses/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
     public void deleteAddress(@PathVariable UUID userId, @PathVariable UUID addressId) {
         addressService.deleteAddress(userId, addressId);
     }

@@ -10,9 +10,9 @@ import com.furnicraft.user.mapper.AddressMapper;
 import com.furnicraft.user.repository.AddressRepository;
 import com.furnicraft.user.repository.UserRepository;
 import com.furnicraft.user.service.AddressService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +32,7 @@ public class AddressServiceImpl implements AddressService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (request.isDefault()){
+        if (request.isDefault()) {
             resetDefaultAddress(userId);
         }
 
@@ -55,7 +55,7 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepository.findByIdAndUserId(addressId, userId)
                 .orElseThrow(() -> new BaseException("Address not found for this user", ErrorCode.RESOURCE_NOT_FOUND));
 
-        if (request.isDefault() && !address.isDefault()){
+        if (request.isDefault() && !address.isDefault()) {
             resetDefaultAddress(userId);
         }
 
@@ -79,6 +79,15 @@ public class AddressServiceImpl implements AddressService {
                 .orElseThrow(() -> new BaseException("Address not found for this user", ErrorCode.RESOURCE_NOT_FOUND));
         address.setDefault(true);
         addressRepository.save(address);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AddressResponse getAddressByIdAndUserId(UUID userId, UUID addressId) {
+        Address address = addressRepository.findByIdAndUserId(addressId, userId)
+                .orElseThrow(() -> new BaseException("Address not found for this user", ErrorCode.RESOURCE_NOT_FOUND));
+
+        return addressMapper.toResponse(address);
     }
 
     private void resetDefaultAddress(UUID userId) {

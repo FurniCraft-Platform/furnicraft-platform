@@ -4,17 +4,18 @@ plugins {
 
 dependencies {
     implementation project(':shared:common')
-    implementation project(':services:user-service')
-    implementation project(':services:product-service')
+    implementation project(':shared:security')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
     implementation 'org.liquibase:liquibase-core'
     implementation 'io.minio:minio:8.5.17'
 
     runtimeOnly 'org.postgresql:postgresql'
 }
-

@@ -13,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,17 +28,20 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<Page<ProductResponseDto>> getAllProducts(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
     @GetMapping("/{productId}")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<ProductResponseDto> getProductById(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductResponseDto> createProduct(
             @Valid @RequestBody ProductRequestDto request) {
         return ResponseEntity
@@ -46,6 +50,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductResponseDto> updateProduct(
             @PathVariable UUID productId,
             @Valid @RequestBody ProductRequestDto request) {
@@ -53,12 +58,14 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}")
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{productId}/stock/reduce")
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductResponseDto> reduceStock(
             @PathVariable UUID productId,
             @RequestParam Integer quantity) {
@@ -66,6 +73,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/stock/restore")
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<ProductResponseDto> restoreStock(
             @PathVariable UUID productId,
             @RequestParam Integer quantity) {
@@ -73,6 +81,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/{productId}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('PRODUCT_WRITE')")
     public ResponseEntity<MediaResponse> uploadProductMedia(
             @PathVariable UUID productId,
             @RequestParam("file") MultipartFile file,
@@ -82,6 +91,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/media")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<List<MediaResponse>> getProductMedia(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getProductMedia(productId));
     }

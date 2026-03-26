@@ -2,6 +2,8 @@ package com.furnicraft.media.service.impl;
 
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
+import com.furnicraft.media.client.ProductClient;
+import com.furnicraft.media.client.UserClient;
 import com.furnicraft.media.dto.StoredObject;
 import com.furnicraft.media.entity.Media;
 import com.furnicraft.media.entity.enums.MediaContentType;
@@ -9,8 +11,7 @@ import com.furnicraft.media.entity.enums.MediaOwnerType;
 import com.furnicraft.media.repository.MediaRepository;
 import com.furnicraft.media.service.MediaService;
 import com.furnicraft.media.service.StorageService;
-import com.furnicraft.product.repository.ProductRepository;
-import com.furnicraft.user.repository.UserRepository;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,8 @@ public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;
     private final StorageService storageService;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
+    private final ProductClient productClient;
+    private final UserClient userClient;
 
     @Override
     public Media uploadProductMedia(UUID productId, MultipartFile file, boolean isPrimary) {
@@ -147,14 +148,22 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private void validateProductExists(UUID productId) {
-        if (!productRepository.existsById(productId)) {
+        try {
+            productClient.getProductById(productId);
+        } catch (FeignException.NotFound ex) {
             throw new BaseException("Product not found", ErrorCode.RESOURCE_NOT_FOUND);
+        } catch (FeignException ex) {
+            throw new BaseException("Product service is unavailable", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     private void validateUserExists(UUID userId) {
-        if (!userRepository.existsById(userId)) {
+        try {
+            userClient.getUserById(userId);
+        } catch (FeignException.NotFound ex) {
             throw new BaseException("User not found", ErrorCode.RESOURCE_NOT_FOUND);
+        } catch (FeignException ex) {
+            throw new BaseException("User service is unavailable", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

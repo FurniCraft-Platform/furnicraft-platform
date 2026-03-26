@@ -5,10 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
-@SpringBootApplication(scanBasePackages = {
-        "com.furnicraft.user",
-        "com.furnicraft.common"
-})
+@SpringBootApplication(scanBasePackages = {"com.furnicraft.user", "com.furnicraft.common", "com.furnicraft.security"})
 public class UserServiceApplication {
 
     public static void main(String[] args) {

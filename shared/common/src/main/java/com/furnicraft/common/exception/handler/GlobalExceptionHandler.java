@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex) {
 
-        ErrorCode code = ErrorCode.INTERNAL_ERROR;
+        ErrorCode code = ErrorCode.INTERNAL_SERVER_ERROR;
 
         ApiResponse<?> response = ApiResponse.builder()
                 .status(code.getStatus().value())

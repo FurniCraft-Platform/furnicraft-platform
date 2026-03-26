@@ -5,12 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import com.furnicraft.auth.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -43,6 +46,17 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        User user = (User) userDetails;
+
+        List<String> authorities = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("role", user.getRole().name());
+        extraClaims.put("authorities", authorities);
+
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())

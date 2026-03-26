@@ -33,6 +33,6 @@ spring:
 application:
   clients:
     product-service:
-      url: http://localhost:8082
-    user-service:
       url: http://localhost:8083
+    user-service:
+      url: http://localhost:8082
