@@ -10,5 +10,5 @@ import java.util.UUID;
 public interface AuthServiceClient {
 
     @GetMapping("/api/v1/auth/users/{id}/exists")
-    boolean checkUserExists(@PathVariable("id") UUID id);
+    boolean checkUserExists(@PathVariable UUID id);
 }

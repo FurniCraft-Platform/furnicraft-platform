@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changesets/v2_create_categories_table.yml
   - include:
       file: db/changelog/changesets/v3_soft_delete_for_categories.yml
+  - include:
+      file: db/changelog/changesets/v6_update_products.yml

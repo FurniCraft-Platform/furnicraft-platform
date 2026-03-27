@@ -5,36 +5,7 @@ spring:
   application:
     name: user-service
 
-  datasource:
-    url: jdbc:postgresql://localhost:5434/furnicraft_user
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 20000
-      max-lifetime: 1800000
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master-user.yml
-
 application:
-  clients:
-    auth-service:
-      url: http://localhost:8081
-
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
@@ -45,8 +16,20 @@ application:
 eureka:
   instance:
     prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
+    instance-id: ${spring.application.name}:${server.port}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/v1/users/v3/api-docs
+  swagger-ui:
+    enabled: false

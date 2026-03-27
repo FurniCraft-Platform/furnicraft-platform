@@ -5,47 +5,39 @@ spring:
   application:
     name: api-gateway
 
-  cloud:
-    gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/v1/auth/**
-
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/v1/users/**
-
-        - id: product-service
-          uri: lb://product-service
-          predicates:
-            - Path=/api/v1/products/**,/api/v1/categories/**
-
-        - id: cart-service
-          uri: lb://cart-service
-          predicates:
-            - Path=/api/v1/carts/**
-
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/v1/orders/**
-
-        - id: payment-service
-          uri: lb://payment-service
-          predicates:
-            - Path=/api/v1/payments/**
-
-        - id: media-service
-          uri: lb://media-service
-          predicates:
-            - Path=/api/v1/media/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
 
 eureka:
   instance:
     prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+    instance-id: ${spring.application.name}:${server.port}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    urls:
+      - name: auth-service
+        url: /api/v1/auth/v3/api-docs
+      - name: user-service
+        url: /api/v1/users/v3/api-docs
+      - name: product-service
+        url: /api/v1/products/v3/api-docs
+      - name: cart-service
+        url: /api/v1/carts/v3/api-docs
+      - name: order-service
+        url: /api/v1/orders/v3/api-docs
+      - name: payment-service
+        url: /api/v1/payments/v3/api-docs
+      - name: media-service
+        url: /api/v1/media/v3/api-docs

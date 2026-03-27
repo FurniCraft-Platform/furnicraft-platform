@@ -21,7 +21,9 @@ public class SecurityConfig extends SecurityConfigSupport {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                         "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/api/v1/orders/v3/api-docs/**"
                 ).permitAll()
                 .anyRequest().authenticated()
         );
