@@ -1,17 +1,15 @@
 package com.furnicraft.auth.service;
 
 import com.furnicraft.auth.client.UserServiceClient;
-import com.furnicraft.auth.dto.AuthenticationResponse;
-import com.furnicraft.auth.dto.LoginRequest;
-import com.furnicraft.auth.dto.RefreshTokenRequest;
-import com.furnicraft.auth.dto.RegisterRequest;
+import com.furnicraft.auth.client.dto.UserProfileCreateRequest;
+import com.furnicraft.auth.dto.*;
 import com.furnicraft.auth.entity.User;
 import com.furnicraft.auth.entity.enums.Role;
 import com.furnicraft.auth.entity.enums.Status;
 import com.furnicraft.auth.repository.UserRepository;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
-import com.furnicraft.user.dto.UserCreateRequest;
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,12 +51,23 @@ public class AuthenticationService {
 
         userRepository.save(user);
 
-        userServiceClient.createUserProfile(UserCreateRequest.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .build());
+        try {
+            userServiceClient.createUserProfile(UserProfileCreateRequest.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .build());
+        } catch (FeignException ex) {
+            userRepository.delete(user);
+            throw new RuntimeException(
+                    "User profile creation failed. Status: " + ex.status() + ", body: " + ex.contentUTF8(),
+                    ex
+            );
+        } catch (Exception ex) {
+            userRepository.delete(user);
+            throw new RuntimeException("User profile creation failed. Real cause: " + ex.getMessage(), ex);
+        }
 
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -123,5 +133,12 @@ public class AuthenticationService {
         }
 
         throw new BaseException("Refresh token is invalid or expired", ErrorCode.TOKEN_EXPIRED);
+    }
+
+    public UserExistenceResponse checkUserExistsById(UUID userId) {
+        boolean exists = userRepository.existsById(userId);
+        return UserExistenceResponse.builder()
+                .exists(exists)
+                .build();
     }
 }

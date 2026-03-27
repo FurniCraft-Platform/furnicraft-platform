@@ -17,6 +17,8 @@ application:
       expiration: ${JWT_EXPIRATION}
       refresh-token:
         expiration: ${JWT_REFRESH_EXPIRATION}
+    internal:
+      service-key: ${INTERNAL_SERVICE_KEY}
 
 eureka:
   instance:

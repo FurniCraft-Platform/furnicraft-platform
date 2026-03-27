@@ -1,14 +1,14 @@
 package com.furnicraft.auth.controller;
 
-import com.furnicraft.auth.dto.AuthenticationResponse;
-import com.furnicraft.auth.dto.LoginRequest;
-import com.furnicraft.auth.dto.RefreshTokenRequest;
-import com.furnicraft.auth.dto.RegisterRequest;
+import com.furnicraft.auth.dto.*;
 import com.furnicraft.auth.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -41,5 +41,11 @@ public class AuthenticationController {
     public String logout(@RequestHeader("Authorization") String authHeader) {
         authenticationService.logout(authHeader);
         return "Logged Out!";
+    }
+
+    @GetMapping("/users/{id}/exists")
+    @PreAuthorize("hasRole('ADMIN') or @internalAuth.isInternalRequest()")
+    public UserExistenceResponse checkUserExists(@PathVariable UUID id) {
+        return authenticationService.checkUserExistsById(id);
     }
 }

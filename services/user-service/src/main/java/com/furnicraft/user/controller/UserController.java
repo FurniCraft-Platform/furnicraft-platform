@@ -30,14 +30,15 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN') or @internalAuth.isInternalRequest()")
     public UserResponse createUser(@Valid @RequestBody UserCreateRequest request) {
         return userService.createUser(request);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#id)")
-    public UserResponse getUser(@PathVariable UUID id) {
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#id) or @internalAuth.isInternalRequest()")
+    public UserResponse getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
     }
 
@@ -55,32 +56,32 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/avatar")
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId)")
     public UserResponse uploadAvatar(@PathVariable UUID userId, @RequestParam("file") MultipartFile file) {
         return userService.uploadAvatar(userId, file);
     }
 
     @GetMapping("/{userId}/media")
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId) or @internalAuth.isInternalRequest()")
     public ResponseEntity<List<MediaResponse>> getUserMedia(@PathVariable UUID userId) {
         return ResponseEntity.ok(userService.getUserMedia(userId));
     }
 
     @PostMapping("/{userId}/addresses")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId)")
     public AddressResponse addAddress(@PathVariable UUID userId, @Valid @RequestBody AddressRequest request) {
         return addressService.addAddress(userId, request);
     }
 
     @GetMapping("/{userId}/addresses")
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId) or @internalAuth.isInternalRequest()")
     public List<AddressResponse> getUserAddresses(@PathVariable UUID userId) {
         return addressService.getUserAddresses(userId);
     }
 
     @GetMapping("/{userId}/addresses/{addressId}")
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId) or @internalAuth.isInternalRequest()")
     public AddressResponse getUserAddressById(
             @PathVariable UUID userId,
             @PathVariable UUID addressId
@@ -89,7 +90,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/addresses/{addressId}/default")
-    @PreAuthorize("hasRole('ADMIN') or @authz.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN') or @userAuth.isCurrentUser(#userId)")
     public void makeDefault(@PathVariable UUID userId, @PathVariable UUID addressId) {
         addressService.makeDefault(userId, addressId);
     }
