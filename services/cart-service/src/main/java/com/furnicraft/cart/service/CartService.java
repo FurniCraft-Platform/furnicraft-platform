@@ -12,9 +12,9 @@ public interface CartService {
 
     CartResponse addItemToCart(UUID userId, AddCartItemRequest request);
 
-    CartResponse updateCartItem(UUID userId, UUID itemId, UpdateCartItemRequest request);
+    CartResponse updateCartItem(UUID userId, UUID productId, UpdateCartItemRequest request);
 
-    CartResponse removeCartItem(UUID userId, UUID itemId);
+    CartResponse removeCartItem(UUID userId, UUID productId);
 
-    CartResponse clearCart(UUID userId);
+    void clearCart(UUID userId);
 }

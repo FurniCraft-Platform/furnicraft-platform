@@ -1,7 +1,6 @@
 package com.furnicraft.order.dto.request;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -13,10 +12,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class OrderRequestDto {
-    @NotNull(message = "User ID is reqiured")
-    private UUID userId;
 
-    @NotBlank(message = "Shipping address is required")
+    @NotNull(message = "Address ID is required")
     private UUID addressId;
 
     @Valid

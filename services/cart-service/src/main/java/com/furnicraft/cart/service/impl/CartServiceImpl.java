@@ -36,16 +36,15 @@ public class CartServiceImpl implements CartService {
     private final CartMapper cartMapper;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public CartResponse getCartByUserId(UUID userId) {
         validateUser(userId);
-
         Cart cart = getOrCreateCart(userId);
-
         return mapToCartResponse(cart);
     }
 
     @Override
+    @Transactional
     public CartResponse addItemToCart(UUID userId, AddCartItemRequest request) {
         validateUser(userId);
 
@@ -62,7 +61,10 @@ public class CartServiceImpl implements CartService {
             int newQuantity = cartItem.getQuantity() + request.getQuantity();
 
             if (product.getStock() == null || newQuantity > product.getStock()) {
-                throw new BaseException("Requested quantity exceeds available stock", ErrorCode.INSUFFICIENT_STOCK);
+                throw new BaseException(
+                        "Requested quantity exceeds available stock",
+                        ErrorCode.INSUFFICIENT_STOCK
+                );
             }
 
             cartItem.setQuantity(newQuantity);
@@ -87,21 +89,18 @@ public class CartServiceImpl implements CartService {
         }
 
         recalculateCart(cart);
-
-        Cart updatedCart = cartRepository.findById(cart.getId())
-                .orElseThrow(() -> new BaseException("Cart not found", ErrorCode.RESOURCE_NOT_FOUND));
-
-        return mapToCartResponse(updatedCart);
+        return mapToCartResponse(getCartById(cart.getId()));
     }
 
     @Override
-    public CartResponse updateCartItem(UUID userId, UUID itemId, UpdateCartItemRequest request) {
+    @Transactional
+    public CartResponse updateCartItem(UUID userId, UUID productId, UpdateCartItemRequest request) {
         validateUser(userId);
 
         Cart cart = getActiveCart(userId);
-        CartItem cartItem = getCartItem(cart.getId(), itemId);
+        CartItem cartItem = getCartItemByProductId(cart.getId(), productId);
 
-        ProductResponse product = getProduct(cartItem.getProductId());
+        ProductResponse product = getProduct(productId);
         validateProductForCart(product, request.getQuantity());
 
         cartItem.setQuantity(request.getQuantity());
@@ -113,32 +112,26 @@ public class CartServiceImpl implements CartService {
         cartItemRepository.save(cartItem);
 
         recalculateCart(cart);
-
-        Cart updatedCart = cartRepository.findById(cart.getId())
-                .orElseThrow(() -> new BaseException("Cart not found", ErrorCode.RESOURCE_NOT_FOUND));
-
-        return mapToCartResponse(updatedCart);
+        return mapToCartResponse(getCartById(cart.getId()));
     }
 
     @Override
-    public CartResponse removeCartItem(UUID userId, UUID itemId) {
+    @Transactional
+    public CartResponse removeCartItem(UUID userId, UUID productId) {
         validateUser(userId);
 
         Cart cart = getActiveCart(userId);
-        CartItem cartItem = getCartItem(cart.getId(), itemId);
+        CartItem cartItem = getCartItemByProductId(cart.getId(), productId);
 
         cartItemRepository.delete(cartItem);
 
         recalculateCart(cart);
-
-        Cart uptadedCart = cartRepository.findById(cart.getId())
-                .orElseThrow(() -> new BaseException("Cart not found", ErrorCode.RESOURCE_NOT_FOUND));
-
-        return mapToCartResponse(uptadedCart);
+        return mapToCartResponse(getCartById(cart.getId()));
     }
 
     @Override
-    public CartResponse clearCart(UUID userId) {
+    @Transactional
+    public void clearCart(UUID userId) {
         validateUser(userId);
 
         Cart cart = getActiveCart(userId);
@@ -149,8 +142,6 @@ public class CartServiceImpl implements CartService {
         cart.setTotalAmount(BigDecimal.ZERO);
 
         cartRepository.save(cart);
-
-        return mapToCartResponse(cart);
     }
 
     private void validateUser(UUID userId) {
@@ -173,16 +164,38 @@ public class CartServiceImpl implements CartService {
 
     private Cart getOrCreateCart(UUID userId) {
         return cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
-                .orElseGet(() -> {
-                    Cart cart = Cart.builder()
-                            .userId(userId)
-                            .status(CartStatus.ACTIVE)
-                            .totalAmount(BigDecimal.ZERO)
-                            .totalItems(0)
-                            .build();
+                .orElseGet(() -> cartRepository.save(
+                        Cart.builder()
+                                .userId(userId)
+                                .status(CartStatus.ACTIVE)
+                                .totalAmount(BigDecimal.ZERO)
+                                .totalItems(0)
+                                .build()
+                ));
+    }
 
-                    return cartRepository.save(cart);
-                });
+    private Cart getActiveCart(UUID userId) {
+        return cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
+                .orElseThrow(() -> new BaseException(
+                        "Active cart not found",
+                        ErrorCode.RESOURCE_NOT_FOUND
+                ));
+    }
+
+    private Cart getCartById(UUID cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new BaseException(
+                        "Cart not found",
+                        ErrorCode.RESOURCE_NOT_FOUND
+                ));
+    }
+
+    private CartItem getCartItemByProductId(UUID cartId, UUID productId) {
+        return cartItemRepository.findByCartIdAndProductId(cartId, productId)
+                .orElseThrow(() -> new BaseException(
+                        "Cart item not found",
+                        ErrorCode.RESOURCE_NOT_FOUND
+                ));
     }
 
     private void recalculateCart(Cart cart) {
@@ -231,15 +244,5 @@ public class CartServiceImpl implements CartService {
 
     private BigDecimal calculateLineTotal(BigDecimal unitPrice, Integer quantity) {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
-    }
-
-    private Cart getActiveCart(UUID userId) {
-        return cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
-                .orElseThrow(() -> new BaseException("Active cart not found", ErrorCode.RESOURCE_NOT_FOUND));
-    }
-
-    private CartItem getCartItem(UUID cartId, UUID itemId) {
-        return cartItemRepository.findByIdAndCartId(itemId, cartId)
-                .orElseThrow(() -> new BaseException("Cart item not found", ErrorCode.RESOURCE_NOT_FOUND));
     }
 }

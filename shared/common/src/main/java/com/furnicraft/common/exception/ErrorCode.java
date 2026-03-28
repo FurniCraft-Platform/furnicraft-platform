@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
 
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access denied"),
+
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
@@ -28,13 +30,17 @@ public enum ErrorCode {
 
     ORDER_CANNOT_BE_CANCELLED(HttpStatus.CONFLICT, "Order cannot be cancelled"),
 
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order not found"),
+
     INVALID_STATUS_TRANSITION(HttpStatus.CONFLICT, "Invalid status transition"),
 
     PAYMENT_ALREADY_COMPLETED(HttpStatus.CONFLICT, "Payment already completed for this order"),
 
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment not found"),
 
-    PAYMENT_CANNOT_BE_REFUNDED(HttpStatus.CONFLICT, "Payment cannot be refunded in current status");
+    PAYMENT_CANNOT_BE_REFUNDED(HttpStatus.CONFLICT, "Payment cannot be refunded in current status"),
+
+    CART_EMPTY(HttpStatus.BAD_REQUEST, "Cart is empty");
 
     private final HttpStatus status;
     private final String defaultMessage;
