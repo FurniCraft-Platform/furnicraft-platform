@@ -7,6 +7,7 @@ import com.furnicraft.payment.client.dto.OrderResponse;
 import com.furnicraft.payment.dto.PaymentRequestDto;
 import com.furnicraft.payment.dto.PaymentResponseDto;
 import com.furnicraft.payment.entity.Payment;
+import com.furnicraft.payment.enums.OrderStatus;
 import com.furnicraft.payment.enums.PaymentStatus;
 import com.furnicraft.payment.mapper.PaymentMapper;
 import com.furnicraft.payment.repository.PaymentRepository;
@@ -93,7 +94,7 @@ public class PaymentService {
         payment.setStatus(PaymentStatus.REFUNDED);
         paymentRepository.save(payment);
 
-        orderClient.updateOrderStatus(payment.getOrderId(), "CANCELLED");
+        orderClient.updateOrderStatus(payment.getOrderId(), OrderStatus.CANCELLED);
 
         return paymentMapper.toDto(payment);
     }
@@ -107,12 +108,12 @@ public class PaymentService {
                 payment.setStatus(PaymentStatus.FAILED);
                 paymentRepository.save(payment);
 
-                safeUpdateOrderStatus(payment.getOrderId(), "PAYMENT_FAILED");
+                safeUpdateOrderStatus(payment.getOrderId(), OrderStatus.PAYMENT_FAILED);
 
                 return paymentMapper.toDto(payment);
             }
 
-            orderClient.updateOrderStatus(payment.getOrderId(), "PAID");
+            orderClient.updateOrderStatus(payment.getOrderId(), OrderStatus.PAID);
 
             payment.setStatus(PaymentStatus.COMPLETED);
             payment = paymentRepository.save(payment);
@@ -127,7 +128,7 @@ public class PaymentService {
             paymentRepository.save(payment);
 
             try {
-                safeUpdateOrderStatus(payment.getOrderId(), "PAYMENT_FAILED");
+                safeUpdateOrderStatus(payment.getOrderId(), OrderStatus.PAYMENT_FAILED);
             } catch (Exception ignored) {
                 log.warn("Failed to update order status to PAYMENT_FAILED for orderId={}", payment.getOrderId());
             }
@@ -170,7 +171,7 @@ public class PaymentService {
         return true;
     }
 
-    private void safeUpdateOrderStatus(UUID orderId, String status) {
+    private void safeUpdateOrderStatus(UUID orderId, OrderStatus status) {
         orderClient.updateOrderStatus(orderId, status);
     }
 

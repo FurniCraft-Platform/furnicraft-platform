@@ -198,6 +198,20 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
+    @Transactional(readOnly = true)
+    public OrderResponseDto getOrderByIdInternal(UUID orderId) {
+        Order order = findOrderByIdOrThrow(orderId);
+        return orderMapper.toDto(order);
+    }
+
+    @Transactional
+    public void updateOrderStatusInternal(UUID orderId, OrderStatus newStatus) {
+        Order order = findOrderByIdOrThrow(orderId);
+        validateStatusTransition(order.getStatus(), newStatus);
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
+
     private void validateStock(ProductResponse product, Integer quantity) {
         if (product.getStock() < quantity) {
             throw new BaseException(
@@ -227,18 +241,30 @@ public class OrderService {
         return String.format("%s, %s, %s", country, city, street);
     }
 
-    private void validateStatusTransition(OrderStatus current, OrderStatus next) {
-        boolean valid = switch (current) {
-            case PENDING -> next == OrderStatus.CONFIRMED || next == OrderStatus.CANCELLED;
-            case CONFIRMED -> next == OrderStatus.SHIPPED || next == OrderStatus.CANCELLED;
-            case SHIPPED -> next == OrderStatus.DELIVERED;
-            default -> false;
+    private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
+        boolean valid = switch (currentStatus) {
+            case PENDING -> newStatus == OrderStatus.CONFIRMED
+                    || newStatus == OrderStatus.PAID
+                    || newStatus == OrderStatus.PAYMENT_FAILED
+                    || newStatus == OrderStatus.CANCELLED;
+
+            case CONFIRMED -> newStatus == OrderStatus.PAID
+                    || newStatus == OrderStatus.PAYMENT_FAILED
+                    || newStatus == OrderStatus.SHIPPED
+                    || newStatus == OrderStatus.CANCELLED;
+
+            case PAID -> newStatus == OrderStatus.SHIPPED
+                    || newStatus == OrderStatus.CANCELLED;
+
+            case SHIPPED -> newStatus == OrderStatus.DELIVERED;
+
+            case DELIVERED, CANCELLED, PAYMENT_FAILED -> false;
         };
 
         if (!valid) {
             throw new BaseException(
-                    "Invalid status transition: " + current + " -> " + next,
-                    ErrorCode.INVALID_STATUS_TRANSITION
+                    "Invalid order status transition: " + currentStatus + " -> " + newStatus,
+                    ErrorCode.VALIDATION_FAILED
             );
         }
     }
@@ -248,6 +274,14 @@ public class OrderService {
                 .orElseThrow(() -> new BaseException(
                         "Order not found with id: " + orderId,
                         ErrorCode.ORDER_NOT_FOUND
+                ));
+    }
+
+    private Order findOrderByIdOrThrow(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new BaseException(
+                        "Order not found with id: " + orderId,
+                        ErrorCode.RESOURCE_NOT_FOUND
                 ));
     }
 }

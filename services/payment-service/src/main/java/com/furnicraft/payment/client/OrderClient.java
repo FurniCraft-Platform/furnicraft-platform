@@ -1,12 +1,18 @@
 package com.furnicraft.payment.client;
 
 import com.furnicraft.payment.client.dto.OrderResponse;
+import com.furnicraft.payment.config.InternalFeignConfig;
+import com.furnicraft.payment.enums.OrderStatus;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@FeignClient(name = "order-service", path = "/api/v1/orders")
+@FeignClient(
+        name = "order-service",
+        path = "/api/v1/orders/internal",
+        configuration = InternalFeignConfig.class
+)
 public interface OrderClient {
 
     @GetMapping("/{orderId}")
@@ -14,7 +20,7 @@ public interface OrderClient {
 
     @PatchMapping("/{orderId}/status")
     void updateOrderStatus(
-            @PathVariable("orderId") UUID orderId,
-            @RequestParam("status") String status
+            @PathVariable UUID orderId,
+            @RequestParam("status") OrderStatus status
     );
 }
