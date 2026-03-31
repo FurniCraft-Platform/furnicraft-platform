@@ -105,6 +105,10 @@ public class AuthenticationService {
 
         String jwt = authHeader.substring(7);
 
+        if (!jwtService.isAccessToken(jwt)) {
+            return;
+        }
+
         Date expirationDate = jwtService.extractExpiration(jwt);
         long diff = expirationDate.getTime() - System.currentTimeMillis();
 

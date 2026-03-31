@@ -6,6 +6,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
@@ -23,9 +24,10 @@ import static com.furnicraft.common.filter.CorrelationIdFilter.CORRELATION_ID;
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
-    public boolean supports(MethodParameter returnType,
-                            Class<? extends HttpMessageConverter<?>> converterType) {
-
+    public boolean supports(
+            MethodParameter returnType,
+            Class<? extends HttpMessageConverter<?>> converterType
+    ) {
         return !ApiResponse.class.isAssignableFrom(returnType.getParameterType())
                 && !String.class.isAssignableFrom(returnType.getParameterType())
                 && !ByteArrayHttpMessageConverter.class.isAssignableFrom(converterType)
@@ -33,23 +35,34 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     }
 
     @Override
-    public Object beforeBodyWrite(Object body,
-                                  MethodParameter returnType,
-                                  MediaType selectedContentType,
-                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  ServerHttpRequest request,
-                                  ServerHttpResponse response) {
+    public Object beforeBodyWrite(
+            Object body,
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response
+    ) {
+        String path = request.getURI().getPath();
+
+        if (path.contains("/v3/api-docs") || path.contains("/swagger-ui")) {
+            return body;
+        }
+
+        if (body instanceof ApiResponse<?> || body instanceof ProblemDetail) {
+            return body;
+        }
+
+        if (body instanceof byte[] || body instanceof Resource) {
+            return body;
+        }
 
         int status = HttpStatus.OK.value();
         if (response instanceof ServletServerHttpResponse servletResponse) {
             status = servletResponse.getServletResponse().getStatus();
         }
 
-        if (body instanceof ApiResponse<?>) {
-            return body;
-        }
-
-        if (body instanceof byte[] || body instanceof Resource) {
+        if (status == HttpStatus.NO_CONTENT.value() || status == HttpStatus.RESET_CONTENT.value()) {
             return body;
         }
 

@@ -2,6 +2,7 @@ package com.furnicraft.auth.controller;
 
 import com.furnicraft.auth.dto.*;
 import com.furnicraft.auth.service.AuthenticationService;
+import com.furnicraft.auth.service.TokenIntrospectionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.UUID;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final TokenIntrospectionService tokenIntrospectionService;
 
     @GetMapping("/status")
     public String getStatus() {
@@ -47,5 +49,13 @@ public class AuthenticationController {
     @PreAuthorize("hasRole('ADMIN') or @internalAuth.isInternalRequest()")
     public UserExistenceResponse checkUserExists(@PathVariable UUID id) {
         return authenticationService.checkUserExistsById(id);
+    }
+
+    @PostMapping("/introspect")
+    @PreAuthorize("@internalAuth.isInternalRequest()")
+    public ResponseEntity<TokenIntrospectionResponse> introspect(
+            @Valid @RequestBody TokenIntrospectionRequest request
+    ) {
+        return ResponseEntity.ok(tokenIntrospectionService.introspect(request.getToken()));
     }
 }

@@ -1,45 +1,17 @@
 spring:
-  cloud:
-    gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/v1/auth/**
-
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/api/v1/users/**
-
-        - id: product-service
-          uri: lb://product-service
-          predicates:
-            - Path=/api/v1/products/**
-
-        - id: cart-service
-          uri: lb://cart-service
-          predicates:
-            - Path=/api/v1/carts/**
-
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/v1/orders/**
-
-        - id: payment-service
-          uri: lb://payment-service
-          predicates:
-            - Path=/api/v1/payments/**
-
-        - id: media-service
-          uri: lb://media-service
-          predicates:
-            - Path=/api/v1/media/**
+  config:
+    activate:
+      on-profile: docker
 
 eureka:
-  instance:
-    prefer-ip-address: true
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+
+application:
+  services:
+    auth:
+      url: http://auth-service:8081
+  security:
+    internal:
+      service-key: ${INTERNAL_SERVICE_KEY}

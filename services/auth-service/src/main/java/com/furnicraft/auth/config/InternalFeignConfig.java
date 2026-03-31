@@ -8,13 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class InternalFeignConfig {
 
-    private static final String INTERNAL_SERVICE_KEY_HEADER = "X-Internal-Service-Key";
+    @Value("${application.security.internal.service-key}")
+    private String internalServiceKey;
 
     @Bean
-    public RequestInterceptor internalServiceRequestInterceptor(
-            @Value("${application.security.internal.service-key}") String internalServiceKey
-    ) {
+    public RequestInterceptor internalServiceRequestInterceptor() {
         return requestTemplate ->
-                requestTemplate.header(INTERNAL_SERVICE_KEY_HEADER, internalServiceKey);
+                requestTemplate.header("X-Internal-Service-Key", internalServiceKey);
     }
 }

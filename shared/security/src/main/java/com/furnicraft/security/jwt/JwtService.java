@@ -15,6 +15,9 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
+    private static final String CLAIM_TOKEN_TYPE = "tokenType";
+    private static final String ACCESS = "ACCESS";
+
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -42,6 +45,14 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
+    }
+
+    public String extractTokenType(String token) {
+        return extractAllClaims(token).get(CLAIM_TOKEN_TYPE, String.class);
+    }
+
+    public boolean isAccessToken(String token) {
+        return ACCESS.equals(extractTokenType(token));
     }
 
     public UUID extractUserId(String token) {

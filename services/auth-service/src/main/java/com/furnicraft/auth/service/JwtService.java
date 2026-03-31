@@ -20,6 +20,14 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    private static final String CLAIM_USER_ID = "userId";
+    private static final String CLAIM_ROLE = "role";
+    private static final String CLAIM_AUTHORITIES = "authorities";
+    private static final String CLAIM_TOKEN_TYPE = "tokenType";
+
+    private static final String ACCESS = "ACCESS";
+    private static final String REFRESH = "REFRESH";
+
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
@@ -33,12 +41,20 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_TOKEN_TYPE, String.class));
+    }
+
     public String generateToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, jwtExpiration);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_TOKEN_TYPE, ACCESS);
+        return buildToken(claims, userDetails, jwtExpiration);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_TOKEN_TYPE, REFRESH);
+        return buildToken(claims, userDetails, refreshExpiration);
     }
 
     private String buildToken(
@@ -53,9 +69,9 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        extraClaims.put("userId", user.getId());
-        extraClaims.put("role", user.getRole().name());
-        extraClaims.put("authorities", authorities);
+        extraClaims.put(CLAIM_USER_ID, user.getId());
+        extraClaims.put(CLAIM_ROLE, user.getRole().name());
+        extraClaims.put(CLAIM_AUTHORITIES, authorities);
 
         return Jwts.builder()
                 .claims(extraClaims)
@@ -68,8 +84,17 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()))
+        return username != null
+                && username.equals(userDetails.getUsername())
                 && !isTokenExpired(token);
+    }
+
+    public boolean isAccessToken(String token) {
+        return ACCESS.equals(extractTokenType(token));
+    }
+
+    public boolean isRefreshToken(String token) {
+        return REFRESH.equals(extractTokenType(token));
     }
 
     private boolean isTokenExpired(String token) {

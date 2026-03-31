@@ -1,6 +1,8 @@
 package com.furnicraft.security.config;
 
-import com.furnicraft.security.jwt.JwtAuthenticationFilter;
+import com.furnicraft.security.filter.InternalHeaderAuthenticationFilter;
+import com.furnicraft.security.handler.RestAccessDeniedHandler;
+import com.furnicraft.security.handler.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,22 +14,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public abstract class SecurityConfigSupport {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final InternalHeaderAuthenticationFilter internalHeaderAuthenticationFilter;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     protected SecurityFilterChain build(HttpSecurity http) throws Exception {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler)
                 );
 
         http.addFilterBefore(
-                jwtAuthenticationFilter,
+                internalHeaderAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class
         );
 
