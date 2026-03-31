@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:${DB_PORT}/furnicraft_cart
+    url: jdbc:postgresql://postgres:5432/furnicraft_cart
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -26,15 +26,15 @@ spring:
 application:
   clients:
     product-service:
-      url: ${PRODUCT_SERVICE_URL}
+      url: http://product-service:8083
     user-service:
-      url: ${USER_SERVICE_URL}
+      url: http://user-service:8082
 
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL}
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true

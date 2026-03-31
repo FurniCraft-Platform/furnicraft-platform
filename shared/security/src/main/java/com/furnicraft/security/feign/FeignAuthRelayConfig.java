@@ -14,6 +14,11 @@ public class FeignAuthRelayConfig {
     private static final String AUTHORIZATION = "Authorization";
     private static final String INTERNAL_SERVICE_KEY = "X-Internal-Service-Key";
 
+    private static final String AUTH_USER_ID = "X-Auth-User-Id";
+    private static final String AUTH_EMAIL = "X-Auth-Email";
+    private static final String AUTH_ROLE = "X-Auth-Role";
+    private static final String AUTH_AUTHORITIES = "X-Auth-Authorities";
+
     @Bean
     public RequestInterceptor authRelayRequestInterceptor() {
         return requestTemplate -> {
@@ -25,15 +30,20 @@ public class FeignAuthRelayConfig {
 
             HttpServletRequest request = servletRequestAttributes.getRequest();
 
-            String authorizationHeader = request.getHeader(AUTHORIZATION);
-            if (authorizationHeader != null && !authorizationHeader.isBlank()) {
-                requestTemplate.header(AUTHORIZATION, authorizationHeader);
-            }
+            relayHeader(request, requestTemplate, AUTHORIZATION);
+            relayHeader(request, requestTemplate, INTERNAL_SERVICE_KEY);
 
-            String internalServiceKey = request.getHeader(INTERNAL_SERVICE_KEY);
-            if (internalServiceKey != null && !internalServiceKey.isBlank()) {
-                requestTemplate.header(INTERNAL_SERVICE_KEY, internalServiceKey);
-            }
+            relayHeader(request, requestTemplate, AUTH_USER_ID);
+            relayHeader(request, requestTemplate, AUTH_EMAIL);
+            relayHeader(request, requestTemplate, AUTH_ROLE);
+            relayHeader(request, requestTemplate, AUTH_AUTHORITIES);
         };
+    }
+
+    private void relayHeader(HttpServletRequest request, feign.RequestTemplate requestTemplate, String headerName) {
+        String value = request.getHeader(headerName);
+        if (value != null && !value.isBlank()) {
+            requestTemplate.header(headerName, value);
+        }
     }
 }

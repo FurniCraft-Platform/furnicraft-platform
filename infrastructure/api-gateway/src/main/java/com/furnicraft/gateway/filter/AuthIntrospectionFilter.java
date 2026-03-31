@@ -81,8 +81,10 @@ public class AuthIntrospectionFilter implements GlobalFilter, Ordered {
                 || path.startsWith("/api/v1/auth/register")
                 || path.startsWith("/api/v1/auth/refresh-token")
                 || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
+                || path.contains("/v3/api-docs")
                 || path.startsWith("/webjars")
+                || path.startsWith("/actuator/health")
+                || path.startsWith("/actuator/info")
                 || path.equals("/favicon.ico");
     }
 

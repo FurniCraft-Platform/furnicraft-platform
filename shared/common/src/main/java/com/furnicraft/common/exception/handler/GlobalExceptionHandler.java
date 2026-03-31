@@ -9,8 +9,6 @@ import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -131,15 +129,6 @@ public class GlobalExceptionHandler {
                 ErrorCode.FILE_TOO_LARGE.getStatus(),
                 ErrorCode.FILE_TOO_LARGE.getDefaultMessage(),
                 errors
-        );
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
-        return buildResponse(
-                ErrorCode.ACCESS_DENIED.getStatus(),
-                ErrorCode.ACCESS_DENIED.getDefaultMessage(),
-                ex.getMessage()
         );
     }
 

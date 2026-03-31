@@ -30,7 +30,10 @@ public class SecurityConfig extends SecurityConfigSupport {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/api/v1/orders/v3/api-docs/**"
+                                "/api/v1/orders/v3/api-docs/**",
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/actuator/info"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
