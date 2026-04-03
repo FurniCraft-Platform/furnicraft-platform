@@ -2,7 +2,6 @@ package com.furnicraft.user.service.impl;
 
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
-import com.furnicraft.user.client.AuthServiceClient;
 import com.furnicraft.user.client.MediaClient;
 import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.user.dto.UserCreateRequest;
@@ -26,17 +25,12 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final AuthServiceClient authServiceClient;
     private final UserMapper userMapper;
     private final MediaClient mediaClient;
 
     @Override
     @Transactional
     public UserResponse createUser(UserCreateRequest request) {
-//        boolean existInAuth = authServiceClient.checkUserExists(request.getId());
-//        if (!existInAuth) {
-//            throw new BaseException("User verification failed! ID not found in Auth Service.", ErrorCode.RESOURCE_NOT_FOUND);
-//        }
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new BaseException("User already exists in Auth Service.", ErrorCode.USER_ALREADY_EXISTS);

@@ -1,12 +1,12 @@
 package com.furnicraft.auth.entity.enums;
 
-import com.furnicraft.security.auth.Permission;
+import com.furnicraft.security.enums.Permission;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
-import static com.furnicraft.security.auth.Permission.*;
+import static com.furnicraft.security.enums.Permission.*;
 
 @Getter
 @RequiredArgsConstructor

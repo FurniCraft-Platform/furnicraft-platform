@@ -31,4 +31,7 @@ public interface MediaClient {
             @RequestParam("ownerType") String ownerType,
             @RequestParam("ownerId") UUID ownerId
     );
+
+    @DeleteMapping("/api/v1/media/internal/{mediaId}")
+    void deleteMedia(@PathVariable("mediaId") UUID mediaId);
 }

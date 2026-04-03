@@ -1,4 +1,4 @@
-package com.furnicraft.security.auth;
+package com.furnicraft.security.enums;
 
 public enum Permission {
     PRODUCT_READ,

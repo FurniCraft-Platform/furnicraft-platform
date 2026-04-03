@@ -3,7 +3,7 @@ package com.furnicraft.media.service.impl;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.media.config.MinioProperties;
-import com.furnicraft.media.dto.StoredObject;
+import com.furnicraft.common.dto.StoredObject;
 import com.furnicraft.media.service.StorageService;
 import io.minio.*;
 import lombok.RequiredArgsConstructor;

@@ -22,7 +22,7 @@ public interface MediaClient {
 
     @PostMapping(value = "/api/v1/media/internal/products/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     MediaResponse uploadProductMedia(
-            @PathVariable UUID productId,
+            @PathVariable("productId") UUID productId,
             @RequestPart("file") MultipartFile file,
             @RequestParam("isPrimary") Boolean isPrimary
     );
@@ -32,4 +32,7 @@ public interface MediaClient {
             @RequestParam("ownerType") String ownerType,
             @RequestParam("ownerId") UUID ownerId
     );
+
+    @DeleteMapping("/api/v1/media/internal/{mediaId}")
+    void deleteMedia(@PathVariable("mediaId") UUID mediaId);
 }
