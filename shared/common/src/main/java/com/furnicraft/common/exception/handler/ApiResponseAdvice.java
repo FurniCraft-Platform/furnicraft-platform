@@ -1,6 +1,6 @@
 package com.furnicraft.common.exception.handler;
 
-import com.furnicraft.common.api.ApiResponse;
+import com.furnicraft.common.dto.ApiResponse;
 import org.slf4j.MDC;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;

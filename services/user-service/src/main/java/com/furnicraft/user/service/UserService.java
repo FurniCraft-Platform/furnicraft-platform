@@ -1,6 +1,6 @@
 package com.furnicraft.user.service;
 
-import com.furnicraft.user.client.dto.MediaResponse;
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.user.dto.UserCreateRequest;
 import com.furnicraft.user.dto.UserResponse;
 import org.springframework.data.domain.Page;

@@ -1,6 +1,6 @@
 package com.furnicraft.media.service;
 
-import com.furnicraft.media.dto.StoredObject;
+import com.furnicraft.common.dto.StoredObject;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

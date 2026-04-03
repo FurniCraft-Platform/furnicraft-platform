@@ -1,6 +1,6 @@
 package com.furnicraft.product.controller;
 
-import com.furnicraft.product.client.dto.MediaResponse;
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.product.dto.product.ProductRequestDto;
 import com.furnicraft.product.dto.product.ProductResponseDto;
 import com.furnicraft.product.service.ProductService;

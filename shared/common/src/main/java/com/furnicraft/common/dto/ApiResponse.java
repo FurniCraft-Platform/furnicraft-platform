@@ -1,4 +1,4 @@
-package com.furnicraft.common.api;
+package com.furnicraft.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

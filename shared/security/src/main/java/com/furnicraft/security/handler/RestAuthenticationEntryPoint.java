@@ -1,7 +1,7 @@
 package com.furnicraft.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.furnicraft.common.api.ApiResponse;
+import com.furnicraft.common.dto.ApiResponse;
 import com.furnicraft.common.exception.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
 package com.furnicraft.common.exception.handler;
 
-import com.furnicraft.common.api.ApiResponse;
+import com.furnicraft.common.dto.ApiResponse;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
@@ -18,7 +18,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

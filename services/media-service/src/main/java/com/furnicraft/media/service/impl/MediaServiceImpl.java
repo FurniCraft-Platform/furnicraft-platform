@@ -1,20 +1,22 @@
 package com.furnicraft.media.service.impl;
 
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.media.client.ProductClient;
 import com.furnicraft.media.client.UserClient;
-import com.furnicraft.media.dto.StoredObject;
+import com.furnicraft.common.dto.StoredObject;
 import com.furnicraft.media.entity.Media;
 import com.furnicraft.media.entity.enums.MediaContentType;
 import com.furnicraft.media.entity.enums.MediaOwnerType;
+import com.furnicraft.media.mapper.MediaResponseMapper;
 import com.furnicraft.media.repository.MediaRepository;
 import com.furnicraft.media.service.MediaService;
 import com.furnicraft.media.service.StorageService;
 import feign.FeignException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -27,11 +29,12 @@ public class MediaServiceImpl implements MediaService {
 
     private final MediaRepository mediaRepository;
     private final StorageService storageService;
+    private final MediaResponseMapper mediaResponseMapper;
     private final ProductClient productClient;
     private final UserClient userClient;
 
     @Override
-    public Media uploadProductMedia(UUID productId, MultipartFile file, boolean isPrimary) {
+    public MediaResponse uploadProductMedia(UUID productId, MultipartFile file, boolean isPrimary) {
         validateFile(file);
         validateProductExists(productId);
 
@@ -43,47 +46,53 @@ public class MediaServiceImpl implements MediaService {
         StoredObject storedObject = storageService.upload(file, objectKey);
 
         Media media = Media.builder()
-                .ownerType(MediaOwnerType.PRODUCT)
                 .ownerId(productId)
-                .contentType(resolveContentType(file))
-                .originalFileName(storedObject.getOriginalFileName())
-                .objectKey(storedObject.getObjectKey())
+                .ownerType(MediaOwnerType.PRODUCT)
                 .bucket(storedObject.getBucket())
+                .objectKey(storedObject.getObjectKey())
+                .originalFileName(storedObject.getOriginalFileName())
                 .size(storedObject.getSize())
+                .contentType(resolveContentType(file))
                 .isPrimary(isPrimary)
                 .build();
 
-        return mediaRepository.save(media);
+        Media savedMedia = mediaRepository.save(media);
+
+        return mediaResponseMapper.toResponse(savedMedia, storedObject, null);
     }
 
     @Override
-    public Media uploadUserProfileImage(UUID userId, MultipartFile file) {
+    public MediaResponse uploadUserProfileImage(UUID userId, MultipartFile file) {
         validateFile(file);
         validateUserExists(userId);
-
         unsetCurrentPrimary(MediaOwnerType.USER, userId);
 
         String objectKey = generateObjectKey(MediaOwnerType.USER, userId, file);
         StoredObject storedObject = storageService.upload(file, objectKey);
 
         Media media = Media.builder()
-                .ownerType(MediaOwnerType.USER)
                 .ownerId(userId)
-                .contentType(resolveContentType(file))
-                .originalFileName(storedObject.getOriginalFileName())
-                .objectKey(storedObject.getObjectKey())
+                .ownerType(MediaOwnerType.USER)
                 .bucket(storedObject.getBucket())
+                .objectKey(storedObject.getObjectKey())
+                .originalFileName(storedObject.getOriginalFileName())
                 .size(storedObject.getSize())
+                .contentType(resolveContentType(file))
                 .isPrimary(true)
                 .build();
 
-        return mediaRepository.save(media);
+        Media savedMedia = mediaRepository.save(media);
+
+        return mediaResponseMapper.toResponse(savedMedia, storedObject, null);
     }
 
     @Override
-    @Transactional
-    public List<Media> getMediaByOwner(MediaOwnerType ownerType, UUID ownerId) {
-        return mediaRepository.findByOwnerTypeAndOwnerIdOrderByCreatedAtDesc(ownerType, ownerId);
+    @Transactional(readOnly = true)
+    public List<MediaResponse> getMediaByOwner(MediaOwnerType ownerType, UUID ownerId) {
+        return mediaRepository.findByOwnerTypeAndOwnerIdOrderByCreatedAtDesc(ownerType, ownerId)
+                .stream()
+                .map(media -> mediaResponseMapper.toResponse(media, null))
+                .toList();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.furnicraft.user.controller;
 
-import com.furnicraft.user.client.dto.MediaResponse;
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.user.dto.AddressRequest;
 import com.furnicraft.user.dto.AddressResponse;
 import com.furnicraft.user.dto.UserCreateRequest;

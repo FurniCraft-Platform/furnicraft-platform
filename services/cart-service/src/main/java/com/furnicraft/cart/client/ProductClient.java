@@ -1,7 +1,7 @@
 package com.furnicraft.cart.client;
 
 import com.furnicraft.cart.client.dto.ProductResponse;
-import com.furnicraft.common.api.ApiResponse;
+import com.furnicraft.common.dto.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

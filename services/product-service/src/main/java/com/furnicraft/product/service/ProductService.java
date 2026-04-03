@@ -3,7 +3,7 @@ package com.furnicraft.product.service;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.product.client.MediaClient;
-import com.furnicraft.product.client.dto.MediaResponse;
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.product.dto.product.ProductRequestDto;
 import com.furnicraft.product.dto.product.ProductResponseDto;
 import com.furnicraft.product.entity.Category;

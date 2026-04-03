@@ -14,7 +14,7 @@ import com.furnicraft.cart.mapper.CartMapper;
 import com.furnicraft.cart.repository.CartItemRepository;
 import com.furnicraft.cart.repository.CartRepository;
 import com.furnicraft.cart.service.CartService;
-import com.furnicraft.common.api.ApiResponse;
+import com.furnicraft.common.dto.ApiResponse;
 import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

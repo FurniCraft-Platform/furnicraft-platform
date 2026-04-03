@@ -1,4 +1,4 @@
-package com.furnicraft.media.dto;
+package com.furnicraft.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

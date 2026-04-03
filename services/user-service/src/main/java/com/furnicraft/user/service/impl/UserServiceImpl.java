@@ -4,7 +4,7 @@ import com.furnicraft.common.exception.BaseException;
 import com.furnicraft.common.exception.ErrorCode;
 import com.furnicraft.user.client.AuthServiceClient;
 import com.furnicraft.user.client.MediaClient;
-import com.furnicraft.user.client.dto.MediaResponse;
+import com.furnicraft.common.dto.MediaResponse;
 import com.furnicraft.user.dto.UserCreateRequest;
 import com.furnicraft.user.dto.UserResponse;
 import com.furnicraft.user.entity.User;
